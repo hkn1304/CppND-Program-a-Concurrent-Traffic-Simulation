@@ -5,6 +5,8 @@
 #include <deque>
 #include <condition_variable>
 #include "TrafficObject.h"
+#include <memory>
+
 
 // forward declarations to avoid include cycle
 class Vehicle;
@@ -19,33 +21,48 @@ template <class T>
 class MessageQueue
 {
 public:
+    T receive();
+    void send(T &&msg);
 
+    std::deque<T> _queue;
 private:
-    
+    std::mutex _mtx;
+    std::condition_variable _cv;
 };
 
-// FP.1 : Define a class „TrafficLight“ which is a child class of TrafficObject. 
-// The class shall have the public methods „void waitForGreen()“ and „void simulate()“ 
+// DONE! FP.1 : Define a class „TrafficLight“ which is a child class of TrafficObject. 
+// DONE! The class shall have the public methods „void waitForGreen()“ and „void simulate()“ 
 // as well as „TrafficLightPhase getCurrentPhase()“, where TrafficLightPhase is an enum that 
 // can be either „red“ or „green“. Also, add the private method „void cycleThroughPhases()“. 
-// Furthermore, there shall be the private member _currentPhase which can take „red“ or „green“ as its value. 
+// DONE! Furthermore, there shall be the private member _currentPhase which can take „red“ or „green“ as its value. 
+enum TrafficLightPhase
+{
+    red,
+    green
+};
 
-class TrafficLight
+class TrafficLight : TrafficObject, public std::enable_shared_from_this<TrafficLight>
 {
 public:
     // constructor / desctructor
-
+    TrafficLight();
     // getters / setters
-
+    TrafficLightPhase getCurrentPhase() const;
     // typical behaviour methods
+    void waitForGreen();
 
+    void simulate();
+
+    
 private:
     // typical behaviour methods
+    void cycleThroughPhases();
 
     // FP.4b : create a private member of type MessageQueue for messages of type TrafficLightPhase 
     // and use it within the infinite loop to push each new TrafficLightPhase into it by calling 
     // send in conjunction with move semantics.
-
+    std::shared_ptr<MessageQueue<TrafficLightPhase>> msg_queue_;
+    TrafficLightPhase _currentPhase;
     std::condition_variable _condition;
     std::mutex _mutex;
 };

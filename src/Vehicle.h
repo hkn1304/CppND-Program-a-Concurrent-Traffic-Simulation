@@ -2,6 +2,7 @@
 #define VEHICLE_H
 
 #include "TrafficObject.h"
+#include <memory>
 
 // forward declarations to avoid include cycle
 class Street;
@@ -12,7 +13,7 @@ class Vehicle : public TrafficObject, public std::enable_shared_from_this<Vehicl
 public:
     // constructor / desctructor
     Vehicle();
-
+    ~Vehicle(){};
     // getters / setters
     void setCurrentStreet(std::shared_ptr<Street> street) { _currStreet = street; };
     void setCurrentDestination(std::shared_ptr<Intersection> destination);
